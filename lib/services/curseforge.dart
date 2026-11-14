@@ -159,16 +159,6 @@ class CurseForgeService {
     return (r['data'] as List)
         .map((e) {
           final m = e as Map<String, dynamic>;
-          String destFolder = 'mods';
-          final modules = (m['modules'] as List?) ?? const [];
-          for (final mod in modules) {
-            final mm = mod as Map<String, dynamic>;
-            final ft = mm['folderType'] as String? ?? '';
-            if (ft.isNotEmpty && ft != 'OTHER') {
-              destFolder = ft.toLowerCase();
-              break;
-            }
-          }
           return CatalogVersion(
             source: 'curseforge',
             id: '${m['id']}',

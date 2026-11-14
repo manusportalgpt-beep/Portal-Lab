@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../app_state.dart';
+import '../models.dart';
 import '../services/instance_service.dart';
 import '../services/mojang.dart';
 

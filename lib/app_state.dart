@@ -1,9 +1,20 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 import 'i18n.dart';
 import 'models.dart';
 import 'store.dart';
-import 'theme.dart';
+
+/// Inherited access to [AppState] from anywhere in the widget tree.
+class AppScope extends InheritedWidget {
+  final AppState state;
+  const AppScope({super.key, required this.state, required super.child});
+
+  static AppState of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<AppScope>()!.state;
+
+  @override
+  bool updateShouldNotify(AppScope oldWidget) => oldWidget.state != state;
+}
 
 /// Global application state: settings, accounts, instances.
 class AppState extends ChangeNotifier {

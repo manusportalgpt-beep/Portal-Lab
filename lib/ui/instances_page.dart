@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../app_state.dart';
-import '../theme.dart';
 import 'create_instance_page.dart';
 import 'instance_detail_page.dart';
 
@@ -78,7 +77,6 @@ class _InstanceIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
     final (icon, color) = switch (loader) {
       'fabric' => (Icons.auto_awesome, const Color(0xFFDBB55A)),
       'quilt' => (Icons.auto_awesome_outlined, const Color(0xFF9C5EEB)),

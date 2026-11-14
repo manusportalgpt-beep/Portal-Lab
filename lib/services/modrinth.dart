@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:archive/archive_io.dart';
 
 import '../models.dart';
+import 'mojang.dart';
 import 'net.dart';
 
 /// Modrinth API v2 client.

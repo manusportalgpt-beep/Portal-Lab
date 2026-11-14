@@ -1,4 +1,4 @@
-/// Data models for Portal Lab.
+// Data models for Portal Lab.
 
 class MojangVersion {
   final String id;

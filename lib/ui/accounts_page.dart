@@ -6,6 +6,13 @@ import '../app_state.dart';
 import '../models.dart';
 import '../services/msa.dart';
 
+/// Opens the accounts page from anywhere.
+void openAccounts(BuildContext context) {
+  Navigator.of(context).push(
+    MaterialPageRoute(builder: (_) => const AccountsPage()),
+  );
+}
+
 class AccountsPage extends StatefulWidget {
   const AccountsPage({super.key});
 
@@ -80,7 +87,7 @@ class _AccountsPageState extends State<AccountsPage> {
                     ),
                   )
                 : ListTile(
-                    leading: const Icon(Icons.microsoft_outlined),
+                    leading: const Icon(Icons.login),
                     title: Text(s['msLogin']),
                     subtitle: const Text('Xbox Live • Minecraft Java'),
                     onTap: _startMsa,

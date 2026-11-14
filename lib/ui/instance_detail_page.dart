@@ -6,7 +6,6 @@ import 'package:url_launcher/url_launcher.dart';
 import '../app_state.dart';
 import '../models.dart';
 import '../services/instance_service.dart';
-import '../theme.dart';
 
 class InstanceDetailPage extends StatefulWidget {
   final String instanceId;
@@ -180,9 +179,6 @@ class _InstanceDetailPageState extends State<InstanceDetailPage> {
   }
 
   Widget _buildOverview(BuildContext context, GameInstance inst, dynamic s) {
-    final created = inst.created.length >= 10
-        ? inst.created.substring(0, 10)
-        : inst.created;
     return ListView(
       padding: const EdgeInsets.all(14),
       children: [

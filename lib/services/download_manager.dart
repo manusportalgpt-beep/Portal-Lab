@@ -40,7 +40,7 @@ class DownloadManager extends ChangeNotifier {
     return t;
   }
 
-  final Map<String, void Function()> _onDone = {};
+  final Map<String, void Function()?> _onDone = {};
 
   void _pump() {
     while (_running < maxConcurrent) {

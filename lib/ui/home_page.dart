@@ -2,11 +2,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../app_state.dart';
-import '../main.dart';
 import '../models.dart';
 import '../services/modrinth.dart';
 import '../services/mojang.dart';
 import '../theme.dart';
+import 'accounts_page.dart';
 import 'create_instance_page.dart';
 
 class HomePage extends StatefulWidget {
