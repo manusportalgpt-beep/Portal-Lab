@@ -7,7 +7,7 @@ import 'ui/browse_page.dart';
 import 'ui/downloads_page.dart';
 import 'ui/home_page.dart';
 import 'ui/instances_page.dart';
-import 'ui/settings_page.dart';
+import 'ui/portalus_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,12 +36,14 @@ class PortalLabApp extends StatelessWidget {
               preset: preset,
               accentOverride: accent,
               brightness: Brightness.light,
-              pureBlack: false),
+              pureBlack: false,
+              glass: state.glass),
           darkTheme: PortalThemes.build(
               preset: preset,
               accentOverride: accent,
               brightness: Brightness.dark,
-              pureBlack: pureBlack),
+              pureBlack: pureBlack,
+              glass: state.glass),
           themeMode: state.themeMode == 0
               ? ThemeMode.system
               : state.themeMode == 1
@@ -77,8 +79,8 @@ class _RootShellState extends State<RootShell> {
           HomePage(),
           InstancesPage(),
           BrowsePage(),
+          PortalusPage(),
           DownloadsPage(),
-          SettingsPage(),
         ],
       ),
       bottomNavigationBar: NavigationBar(
@@ -101,14 +103,14 @@ class _RootShellState extends State<RootShell> {
             label: s['tabBrowse'],
           ),
           NavigationDestination(
+            icon: const Icon(Icons.auto_awesome_outlined),
+            selectedIcon: const Icon(Icons.auto_awesome),
+            label: s['tabPortalus'],
+          ),
+          NavigationDestination(
             icon: const Icon(Icons.download_outlined),
             selectedIcon: const Icon(Icons.download),
             label: s['tabDownloads'],
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.settings_outlined),
-            selectedIcon: const Icon(Icons.settings),
-            label: s['tabSettings'],
           ),
         ],
       ),

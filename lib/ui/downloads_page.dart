@@ -47,13 +47,41 @@ class _DownloadsPageState extends State<DownloadsPage> {
               ],
             );
           }
-          return ListView.builder(
-            padding: const EdgeInsets.all(12),
-            itemCount: dm.tasks.length,
-            itemBuilder: (context, i) {
-              final t = dm.tasks[i];
-              return _TaskTile(task: t);
-            },
+          final active =
+              dm.tasks.where((t) => t.status == 'queued' || t.status == 'running');
+          return Column(
+            children: [
+              if (active.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 10, 12, 0),
+                  child: Row(
+                    children: [
+                      const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2.5),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          '${s['activeDownloads']}: ${active.length}',
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.all(12),
+                  itemCount: dm.tasks.length,
+                  itemBuilder: (context, i) {
+                    final t = dm.tasks[i];
+                    return _TaskTile(task: t);
+                  },
+                ),
+              ),
+            ],
           );
         },
       ),

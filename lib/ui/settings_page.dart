@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../app_state.dart';
+import '../services/pollinations.dart';
 import '../theme.dart';
 
 class SettingsPage extends StatelessWidget {
@@ -39,7 +40,8 @@ class SettingsPage extends StatelessWidget {
                         segments: [
                           ButtonSegment(
                               value: 0,
-                              icon: const Icon(Icons.brightness_auto, size: 18),
+                              icon: const Icon(Icons.brightness_auto,
+                                  size: 18),
                               tooltip: s['modeSystem']),
                           ButtonSegment(
                               value: 1,
@@ -116,6 +118,15 @@ class SettingsPage extends StatelessWidget {
                     ],
                   ),
                 ),
+                const Divider(height: 1, indent: 16, endIndent: 16),
+                // glass effect
+                SwitchListTile(
+                  secondary: const Icon(Icons.opacity),
+                  title: Text(s['glassLabel']),
+                  subtitle: Text(s['glassHint']),
+                  value: st.glass,
+                  onChanged: (v) => st.setGlass(v),
+                ),
               ],
             ),
           ),
@@ -147,6 +158,100 @@ class SettingsPage extends StatelessWidget {
             ),
           ),
 
+          // ---- Portalus ----
+          const SizedBox(height: 18),
+          Text(s['portalusSection'],
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium
+                  ?.copyWith(fontWeight: FontWeight.w700)),
+          Card(
+            child: Column(
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.auto_awesome),
+                  title: Text(s['portalusModel']),
+                  subtitle: Text(st.aiModel),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => _pickAiModel(context, st),
+                ),
+                const Divider(height: 1, indent: 16, endIndent: 16),
+                SwitchListTile(
+                  secondary: const Icon(Icons.travel_explore),
+                  title: Text(s['webSearchLabel']),
+                  subtitle: Text(s['webSearchHint']),
+                  value: st.aiWebSearch,
+                  onChanged: (v) => st.setAiWebSearch(v),
+                ),
+              ],
+            ),
+          ),
+
+          // ---- Performance ----
+          const SizedBox(height: 18),
+          Text(s['performanceSection'],
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium
+                  ?.copyWith(fontWeight: FontWeight.w700)),
+          Card(
+            child: Column(
+              children: [
+                SwitchListTile(
+                  secondary: const Icon(Icons.image_outlined),
+                  title: Text(s['cacheImages']),
+                  value: st.cacheImages,
+                  onChanged: (v) => st.setCacheImages(v),
+                ),
+                const Divider(height: 1, indent: 16, endIndent: 16),
+                ListTile(
+                  leading: const Icon(Icons.cleaning_services_outlined),
+                  title: Text(s['clearCache']),
+                  onTap: () {
+                    PaintingBinding.instance.imageCache.clear();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(s['cacheCleared'])));
+                  },
+                ),
+              ],
+            ),
+          ),
+
+          // ---- Defaults ----
+          const SizedBox(height: 18),
+          Text(s['defaultsSection'],
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium
+                  ?.copyWith(fontWeight: FontWeight.w700)),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(14, 6, 14, 14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                      '${s['defaultMemory']}: ${st.defaultMemoryMb == 0 ? s['memoryAuto'] : '${st.defaultMemoryMb} MB'}',
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w600, fontSize: 13)),
+                  Slider(
+                    value: (st.defaultMemoryMb == 0
+                            ? 2048
+                            : st.defaultMemoryMb)
+                        .toDouble(),
+                    min: 512,
+                    max: 8192,
+                    divisions: 15,
+                    label: st.defaultMemoryMb == 0
+                        ? s['memoryAuto']
+                        : '${st.defaultMemoryMb} MB',
+                    onChanged: (v) => st.setDefaultMemory(v.round()),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
           // ---- About ----
           const SizedBox(height: 18),
           Text(s['about'],
@@ -169,13 +274,53 @@ class SettingsPage extends StatelessWidget {
                 ListTile(
                   leading: const Icon(Icons.tag),
                   title: Text(s['version']),
-                  trailing: const Text('1.0.0'),
+                  trailing: const Text('2.0.0'),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 30),
         ],
+      ),
+    );
+  }
+
+  Future<void> _pickAiModel(BuildContext context, AppState st) async {
+    final s = st.s;
+    final models = await PollinationsService.models();
+    if (!context.mounted) return;
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (ctx) => SafeArea(
+        child: ListView(
+          shrinkWrap: true,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
+              child: Text(s['portalusModel'],
+                  style: Theme.of(ctx)
+                      .textTheme
+                      .titleLarge
+                      ?.copyWith(fontWeight: FontWeight.w700)),
+            ),
+            ...models.map((m) {
+              final selected = m.name == st.aiModel;
+              return ListTile(
+                leading: Icon(
+                    selected ? Icons.check_circle : Icons.circle_outlined,
+                    size: 20),
+                title: Text(m.name,
+                    style: const TextStyle(fontWeight: FontWeight.w600)),
+                subtitle: Text(m.description, maxLines: 2),
+                onTap: () {
+                  st.setAiModel(m.name);
+                  Navigator.pop(ctx);
+                },
+              );
+            }),
+          ],
+        ),
       ),
     );
   }

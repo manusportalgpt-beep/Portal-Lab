@@ -23,6 +23,7 @@ class DownloadManager extends ChangeNotifier {
     required String url,
     required String destPath,
     String? tag,
+    String? iconUrl,
     void Function()? onDone,
   }) {
     final t = DownloadTask(
@@ -32,6 +33,7 @@ class DownloadManager extends ChangeNotifier {
       url: url,
       destPath: destPath,
       tag: tag,
+      iconUrl: iconUrl,
     );
     tasks.insert(0, t);
     _onDone[t.id] = onDone;

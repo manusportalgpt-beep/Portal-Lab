@@ -1,10 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../app_state.dart';
 import '../models.dart';
 import '../services/msa.dart';
+import 'msa_login_page.dart';
 
 /// Opens the accounts page from anywhere.
 void openAccounts(BuildContext context) {
@@ -21,10 +21,6 @@ class AccountsPage extends StatefulWidget {
 }
 
 class _AccountsPageState extends State<AccountsPage> {
-  bool _msaBusy = false;
-  DeviceCode? _deviceCode;
-  String? _msaError;
-
   @override
   Widget build(BuildContext context) {
     final st = AppScope.of(context);
@@ -36,62 +32,24 @@ class _AccountsPageState extends State<AccountsPage> {
         children: [
           // Add Microsoft
           Card(
-            child: _msaBusy
-                ? Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      children: [
-                        if (_deviceCode != null) ...[
-                          Text(s['msLoginHint'],
-                              style: Theme.of(context).textTheme.titleMedium),
-                          const SizedBox(height: 8),
-                          SelectableText(
-                            _deviceCode!.userCode,
-                            style: Theme.of(context)
-                                .textTheme
-                                .headlineMedium
-                                ?.copyWith(
-                                    fontWeight: FontWeight.w800,
-                                    letterSpacing: 4,
-                                    color: Theme.of(context).colorScheme.primary),
-                          ),
-                          const SizedBox(height: 8),
-                          FilledButton.icon(
-                            onPressed: () => _openUrl(_deviceCode!.verificationUrl),
-                            icon: const Icon(Icons.open_in_new),
-                            label: Text(s['openMsPage']),
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(strokeWidth: 2),
-                              ),
-                              const SizedBox(width: 8),
-                              Text(s['waitingCode']),
-                            ],
-                          ),
-                        ] else
-                          const Center(child: CircularProgressIndicator()),
-                        if (_msaError != null)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 8),
-                            child: Text(_msaError!,
-                                style: TextStyle(
-                                    color: Theme.of(context).colorScheme.error)),
-                          ),
-                      ],
-                    ),
-                  )
-                : ListTile(
-                    leading: const Icon(Icons.login),
-                    title: Text(s['msLogin']),
-                    subtitle: const Text('Xbox Live • Minecraft Java'),
-                    onTap: _startMsa,
-                  ),
+            child: ListTile(
+              leading: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF00A4EF).withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.login,
+                    color: Color(0xFF00A4EF)),
+              ),
+              title: Text(s['msLogin'],
+                  style: const TextStyle(fontWeight: FontWeight.w600)),
+              subtitle: const Text('Xbox Live • Minecraft Java'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => const MsaLoginPage())),
+            ),
           ),
           // Add offline
           Card(
@@ -117,32 +75,6 @@ class _AccountsPageState extends State<AccountsPage> {
         ],
       ),
     );
-  }
-
-  Future<void> _startMsa() async {
-    final st = AppScope.of(context);
-    setState(() {
-      _msaBusy = true;
-      _msaError = null;
-      _deviceCode = null;
-    });
-    try {
-      final dc = await MsaService.startDeviceCode();
-      if (!mounted) return;
-      setState(() => _deviceCode = dc);
-      _openUrl(dc.verificationUrl);
-      final acc = await MsaService.login(dc);
-      await st.addAccount(acc);
-      if (!mounted) return;
-      setState(() => _msaBusy = false);
-    } catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _msaError = e.toString();
-      });
-      // keep busy=false so user can retry
-      setState(() => _msaBusy = false);
-    }
   }
 
   Future<void> _refresh(McAccount acc) async {
@@ -200,13 +132,6 @@ class _AccountsPageState extends State<AccountsPage> {
 
   static String _hex4(int v) =>
       (v & 0xffff).toRadixString(16).padLeft(4, '0');
-
-  Future<void> _openUrl(String url) async {
-    final uri = Uri.parse(url);
-    try {
-      if (await canLaunchUrl(uri)) await launchUrl(uri);
-    } catch (_) {}
-  }
 }
 
 class _AccountTile extends StatelessWidget {
@@ -227,6 +152,7 @@ class _AccountTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = AppScope.of(context).s;
+    final cs = Theme.of(context).colorScheme;
     return Card(
       child: ListTile(
         leading: account.skinUrl != null
@@ -246,7 +172,9 @@ class _AccountTile extends StatelessWidget {
               ),
         title: Text(account.username,
             style: const TextStyle(fontWeight: FontWeight.w600)),
-        subtitle: Text(account.isMsa ? s['msAccount'] : s['offlineAccount']),
+        subtitle: Text(account.isMsa
+            ? '${s['msAccount']} • ${s['active']}'
+            : s['offlineAccount']),
         trailing: PopupMenuButton<String>(
           onSelected: (v) {
             if (v == 'active') onSetActive();
@@ -262,6 +190,7 @@ class _AccountTile extends StatelessWidget {
           ],
         ),
         onTap: onSetActive,
+        tileColor: active ? cs.primaryContainer.withOpacity(0.25) : null,
       ),
     );
   }

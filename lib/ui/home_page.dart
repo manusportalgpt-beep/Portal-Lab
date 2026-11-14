@@ -8,6 +8,11 @@ import '../services/mojang.dart';
 import '../theme.dart';
 import 'accounts_page.dart';
 import 'create_instance_page.dart';
+import 'instance_detail_page.dart';
+import 'launch_page.dart';
+import 'portalus_page.dart';
+import 'settings_page.dart';
+import 'widgets/brand_icons.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -59,12 +64,19 @@ class _HomePageState extends State<HomePage> {
     final acc = st.activeAccount;
     final totalMods =
         st.instances.fold<int>(0, (sum, i) => sum + i.mods.length);
+    final last = st.lastInstance;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(s['appName'],
             style: const TextStyle(fontWeight: FontWeight.w700)),
         actions: [
+          IconButton(
+            tooltip: s['tabSettings'],
+            icon: const Icon(Icons.settings_outlined),
+            onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const SettingsPage())),
+          ),
           Padding(
             padding: const EdgeInsets.only(right: 12),
             child: GestureDetector(
@@ -126,7 +138,64 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
 
+            // Quick launch
+            if (last != null) ...[
+              const SizedBox(height: 8),
+              Card(
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(18),
+                  onTap: () {
+                    st.setLastInstance(last.id);
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => LaunchPage(instanceId: last.id)));
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: Row(
+                      children: [
+                        LoaderBadge(loader: last.loader, size: 44),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(s['quickLaunch'],
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall),
+                              Text(last.name,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 16)),
+                              Text(
+                                '${last.loaderLabel} • MC ${last.gameVersion}',
+                                style:
+                                    Theme.of(context).textTheme.bodySmall,
+                              ),
+                            ],
+                          ),
+                        ),
+                        FilledButton.icon(
+                          onPressed: () {
+                            st.setLastInstance(last.id);
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (_) =>
+                                    LaunchPage(instanceId: last.id)));
+                          },
+                          icon: const Icon(Icons.play_arrow),
+                          label: Text(s['play']),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+
             // Stats
+            const SizedBox(height: 18),
             Text(s['quickStats'],
                 style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 6),
@@ -160,11 +229,21 @@ class _HomePageState extends State<HomePage> {
                   child: _ActionCard(
                     icon: Icons.add_box,
                     label: s['createInstance'],
-                    onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                        builder: (_) => const CreateInstancePage())),
+                    onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (_) => const CreateInstancePage())),
                   ),
                 ),
                 const SizedBox(width: 10),
+                Expanded(
+                  child: _ActionCard(
+                    icon: Icons.auto_awesome,
+                    label: s['portalusName'],
+                    onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (_) => const PortalusPage())),
+                  ),
+                ),
               ],
             ),
 
@@ -174,7 +253,8 @@ class _HomePageState extends State<HomePage> {
                 style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 6),
             if (_loading && _versions.isEmpty)
-              const Center(child: Padding(
+              const Center(
+                  child: Padding(
                 padding: EdgeInsets.all(20),
                 child: CircularProgressIndicator(),
               ))
@@ -184,8 +264,8 @@ class _HomePageState extends State<HomePage> {
                 title: Text(s['error']),
                 subtitle: Text(_error!,
                     maxLines: 2, overflow: TextOverflow.ellipsis),
-                trailing: TextButton(
-                    onPressed: _load, child: Text(s['retry'])),
+                trailing:
+                    TextButton(onPressed: _load, child: Text(s['retry'])),
               )
             else
               ..._versions.map((v) => Card(
@@ -218,6 +298,28 @@ class _HomePageState extends State<HomePage> {
                   },
                 ),
               ),
+
+            // Recent instances
+            if (st.instances.isNotEmpty) ...[
+              const SizedBox(height: 18),
+              Text(s['tabInstances'],
+                  style: Theme.of(context).textTheme.titleMedium),
+              const SizedBox(height: 6),
+              ...st.instances.take(3).map((inst) => Card(
+                    child: ListTile(
+                      leading: LoaderBadge(loader: inst.loader, size: 40),
+                      title: Text(inst.name,
+                          maxLines: 1, overflow: TextOverflow.ellipsis),
+                      subtitle: Text(
+                          '${inst.loaderLabel} • MC ${inst.gameVersion} • ${inst.mods.length} ${s['modsTab']}'),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (_) =>
+                                  InstanceDetailPage(instanceId: inst.id))),
+                    ),
+                  )),
+            ],
             const SizedBox(height: 30),
           ],
         ),
@@ -237,8 +339,7 @@ class _AccountAvatar extends StatelessWidget {
     }
     final name = account!.username;
     return CircleAvatar(
-      backgroundColor:
-          Theme.of(context).colorScheme.primaryContainer,
+      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
       child: Text(
         name.isEmpty ? '?' : name[0].toUpperCase(),
         style: TextStyle(
@@ -298,17 +399,16 @@ class _ActionCard extends StatelessWidget {
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: Row(
+          child: Column(
             children: [
               Icon(icon, color: Theme.of(context).colorScheme.primary),
-              const SizedBox(width: 12),
+              const SizedBox(height: 8),
               Text(label,
+                  textAlign: TextAlign.center,
                   style: Theme.of(context)
                       .textTheme
-                      .titleMedium
+                      .titleSmall
                       ?.copyWith(fontWeight: FontWeight.w600)),
-              const Spacer(),
-              const Icon(Icons.chevron_right),
             ],
           ),
         ),
@@ -361,9 +461,18 @@ class _PopularCard extends StatelessWidget {
                 ],
               ),
               const Spacer(),
-              Text(
-                '${fmtCount(project.downloads)} ${AppScope.of(context).s['downloadsWord']}',
-                style: TextStyle(color: cs.primary, fontWeight: FontWeight.w600),
+              Row(
+                children: [
+                  SourceBadge(source: project.source, size: 16),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      '${fmtCount(project.downloads)} ${AppScope.of(context).s['downloadsWord']}',
+                      style: TextStyle(
+                          color: cs.primary, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

@@ -26,6 +26,7 @@ class CurseForgeService {
     'modpack': 4471,
     'resourcepack': 12,
     'shader': 6552,
+    'datapack': 6945,
   };
 
   static Future<List<CatalogProject>> search({
