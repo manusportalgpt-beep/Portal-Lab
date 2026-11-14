@@ -62,14 +62,12 @@ class CurseForgeService {
     return (j['data'] as List)
         .map((e) {
           final m = e as Map<String, dynamic>;
-          final icons = (m['icons'] as List?) ?? const [];
           String? icon;
-          for (final ic in icons) {
-            final im = ic as Map<String, dynamic>;
-            if (im['iconUrl'] != null) {
-              icon = im['iconUrl'] as String;
-              break;
-            }
+          final logo = m['logo'] as Map?;
+          if (logo != null && logo['thumbnailUrl'] != null) {
+            icon = logo['thumbnailUrl'] as String?;
+          } else if (logo != null && logo['url'] != null) {
+            icon = logo['url'] as String?;
           }
           final authors = (m['authors'] as List?) ?? const [];
           final author = authors.isEmpty
