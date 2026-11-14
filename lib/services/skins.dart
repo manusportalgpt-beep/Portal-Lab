@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 import '../models.dart';
 import 'msa.dart';
 import 'net.dart';
-import 'store.dart';
+import '../store.dart';
 
 /// A skin texture resolved from the Mojang session servers.
 class PlayerSkin {
