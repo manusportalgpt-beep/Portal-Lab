@@ -136,11 +136,14 @@ class MsaService {
         headers: {'Authorization': 'Bearer $mcToken'});
 
     String? skinUrl;
+    String? skinModel;
     final skins = (prof['skins'] as List?) ?? const [];
     for (final s in skins) {
       final sm = s as Map<String, dynamic>;
       if (sm['state'] == 'ACTIVE') {
         skinUrl = sm['url'] as String?;
+        final v = sm['variant'] as String?;
+        skinModel = (v == null || v.isEmpty) ? null : v.toLowerCase();
         break;
       }
     }
@@ -155,6 +158,7 @@ class MsaService {
           .add(Duration(seconds: expiresIn > 0 ? expiresIn : 86400))
           .millisecondsSinceEpoch,
       skinUrl: skinUrl,
+      skinModel: skinModel,
       xuid: xblUhs,
     );
   }

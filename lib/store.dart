@@ -39,6 +39,14 @@ class Store {
   static File get imagesFile => File('${root.path}/portalus_images.json');
   static File get controlsFile => File('${root.path}/controls.json');
 
+  /// Local skin overrides live in the shared PortalLab folder so file
+  /// managers (and offline-skin mods) can reach them.
+  static Directory get skinsDir {
+    final d = Directory('${exportsDir.path}/skins');
+    if (!d.existsSync()) d.createSync(recursive: true);
+    return d;
+  }
+
   static Future<void> init() async {
     root = await getApplicationDocumentsDirectory();
     prefs = await SharedPreferences.getInstance();

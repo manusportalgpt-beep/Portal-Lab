@@ -185,6 +185,7 @@ class PollinationsService {
 9. Перевод: кнопка «Перевести описание (Google Translate)» на странице мода переводит описание на язык лаунчера.
 10. Экспорт: ZIP со всеми файлами или модпак .mrpack.
 11. Ты сам (Порталус): чат с выбором моделей Pollinations, генерация картинок (flux, turbo и другие), анализ логов, поиск в интернете (если включён).
+12. Скины и иконки: у каждого аккаунта квадратная иконка головы по нику/UUID (лицо из скина). Страница «Скины» (меню аккаунта, кнопка на странице запуска, тап по иконке на главной) показывает предпросмотр всей модели (Classic/Slim). Для аккаунтов Microsoft скин меняется через официальный API Minecraft Services — его увидят все игроки на серверах; есть сброс на стандартный. Для офлайн-аккаунтов — локальная подмена: скин виден только на этом устройстве (иконки и предпросмотр лаунчера), а в игре и у других игроков остаётся стандартный офлайн-скин по нику. Скин можно взять по ссылке PNG, скопировать по нику другого игрока или выбрать PNG из папки PortalLab. Если нужен настоящий скин в игре на офлайн-аккаунте — посоветуйте мод на офлайн-скины, файл лежит в PortalLab/skins.
 
 Типовые проблемы и решения:
 - Exit code 1 / краш при старте: чаще конфликт модов. Отключайте моды по половине, пока не найдёте виновника; смотрите лог во вкладке «Логи».
@@ -214,6 +215,7 @@ Portal Lab knowledge:
 9. Translation: the "Translate description (Google Translate)" button on a mod page translates it into the launcher language.
 10. Export: a ZIP with all files or an .mrpack modpack.
 11. You (Portalus): chat with selectable Pollinations models, image generation (flux, turbo and others), log analysis, web search (when enabled).
+12. Skins and icons: every account has a square head icon by nickname/UUID (the face crop of the skin). The "Skins" page (account menu, button on the launch page, tap the icon on the home page) shows a full-body preview (Classic/Slim). For Microsoft accounts the skin is changed through the official Minecraft Services API — every player on servers will see it; there is also a reset to the default skin. For offline accounts there is a local override: the skin is visible only on this device (launcher icons and preview), while in game and for other players the standard offline skin by nickname remains. A skin can be taken from a PNG URL, copied from another player by nickname, or picked as a PNG from the PortalLab folder. If a real in-game skin is needed on an offline account, suggest an offline-skins mod — the file is stored in PortalLab/skins.
 
 Common problems and fixes:
 - Exit code 1 / startup crash: usually a mod conflict. Disable mods by halves to find the culprit; check the log on the Logs tab.

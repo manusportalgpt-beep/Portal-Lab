@@ -12,7 +12,9 @@ import 'instance_detail_page.dart';
 import 'launch_page.dart';
 import 'portalus_page.dart';
 import 'settings_page.dart';
+import 'skin_page.dart';
 import 'widgets/brand_icons.dart';
+import 'widgets/player_head.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -123,15 +125,12 @@ class _HomePageState extends State<HomePage> {
                         ],
                       ),
                     ),
-                    if (acc?.skinUrl != null)
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: CachedNetworkImage(
-                          imageUrl: acc!.skinUrl!,
-                          width: 56,
-                          height: 56,
-                          fit: BoxFit.cover,
-                        ),
+                    if (acc != null)
+                      GestureDetector(
+                        onTap: () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                                builder: (_) => SkinPage(account: acc))),
+                        child: PlayerHead.of(acc, size: 56, radius: 10),
                       ),
                   ],
                 ),
@@ -337,16 +336,7 @@ class _AccountAvatar extends StatelessWidget {
     if (account == null) {
       return const CircleAvatar(child: Icon(Icons.person_outline));
     }
-    final name = account!.username;
-    return CircleAvatar(
-      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-      child: Text(
-        name.isEmpty ? '?' : name[0].toUpperCase(),
-        style: TextStyle(
-            color: Theme.of(context).colorScheme.onPrimaryContainer,
-            fontWeight: FontWeight.w700),
-      ),
-    );
+    return PlayerHead.of(account!, size: 34, radius: 8);
   }
 }
 

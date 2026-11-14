@@ -1,10 +1,12 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../app_state.dart';
 import '../models.dart';
 import '../services/msa.dart';
+import '../services/skins.dart';
 import 'msa_login_page.dart';
+import 'skin_page.dart';
+import 'widgets/player_head.dart';
 
 /// Opens the accounts page from anywhere.
 void openAccounts(BuildContext context) {
@@ -68,6 +70,8 @@ class _AccountsPageState extends State<AccountsPage> {
                   await st.setActiveAccount(a.uuid);
                 },
                 onRefresh: () => _refresh(a),
+                onSkin: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => SkinPage(account: a))),
                 onRemove: () async {
                   await st.removeAccount(a.uuid);
                 },
@@ -115,13 +119,7 @@ class _AccountsPageState extends State<AccountsPage> {
       ),
     );
     if (name == null || name.isEmpty) return;
-    final uuidName = name.toLowerCase();
-    var h = 0;
-    for (final c in uuidName.codeUnits) {
-      h = (h * 31 + c) & 0x7fffffff;
-    }
-    final uuid =
-        '${_hex4(h)}0000-4000-8000-${_hex4(h >> 16)}${_hex4(h * 7)}';
+    final uuid = SkinService.offlineUuid(name);
     final acc = McAccount(
       uuid: uuid,
       username: name,
@@ -129,9 +127,6 @@ class _AccountsPageState extends State<AccountsPage> {
     );
     await st.addAccount(acc);
   }
-
-  static String _hex4(int v) =>
-      (v & 0xffff).toRadixString(16).padLeft(4, '0');
 }
 
 class _AccountTile extends StatelessWidget {
@@ -139,6 +134,7 @@ class _AccountTile extends StatelessWidget {
   final bool active;
   final VoidCallback onSetActive;
   final VoidCallback onRefresh;
+  final VoidCallback onSkin;
   final VoidCallback onRemove;
 
   const _AccountTile({
@@ -146,6 +142,7 @@ class _AccountTile extends StatelessWidget {
     required this.active,
     required this.onSetActive,
     required this.onRefresh,
+    required this.onSkin,
     required this.onRemove,
   });
 
@@ -155,21 +152,7 @@ class _AccountTile extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     return Card(
       child: ListTile(
-        leading: account.skinUrl != null
-            ? ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: CachedNetworkImage(
-                  imageUrl: account.skinUrl!,
-                  width: 44,
-                  height: 44,
-                  fit: BoxFit.cover,
-                ),
-              )
-            : CircleAvatar(
-                child: Text(account.username.isEmpty
-                    ? '?'
-                    : account.username[0].toUpperCase()),
-              ),
+        leading: PlayerHead.of(account, size: 44, radius: 8),
         title: Text(account.username,
             style: const TextStyle(fontWeight: FontWeight.w600)),
         subtitle: Text(account.isMsa
@@ -179,11 +162,13 @@ class _AccountTile extends StatelessWidget {
           onSelected: (v) {
             if (v == 'active') onSetActive();
             if (v == 'refresh') onRefresh();
+            if (v == 'skin') onSkin();
             if (v == 'remove') onRemove();
           },
           itemBuilder: (ctx) => [
             if (!active)
               PopupMenuItem(value: 'active', child: Text(s['setActive'])),
+            PopupMenuItem(value: 'skin', child: Text(s['changeSkin'])),
             if (account.isMsa)
               PopupMenuItem(value: 'refresh', child: Text(s['refresh'])),
             PopupMenuItem(value: 'remove', child: Text(s['remove'])),

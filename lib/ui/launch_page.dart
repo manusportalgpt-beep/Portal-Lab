@@ -10,7 +10,9 @@ import '../store.dart';
 import 'accounts_page.dart';
 import 'controls_page.dart';
 import 'instance_settings_page.dart';
+import 'skin_page.dart';
 import 'widgets/brand_icons.dart';
+import 'widgets/player_head.dart';
 
 /// The launch screen: pre-flight checks, account, memory, Pojav handover.
 class LaunchPage extends StatefulWidget {
@@ -142,23 +144,28 @@ class _LaunchPageState extends State<LaunchPage> {
           // Account
           Card(
             child: ListTile(
-              leading: CircleAvatar(
-                backgroundColor: cs.primaryContainer,
-                child: Text(
-                  (acc?.username.isEmpty ?? true)
-                      ? '?'
-                      : acc!.username[0].toUpperCase(),
-                  style: TextStyle(
-                      color: cs.onPrimaryContainer,
-                      fontWeight: FontWeight.w700),
-                ),
-              ),
+              leading: acc == null
+                  ? const CircleAvatar(child: Icon(Icons.person_outline))
+                  : PlayerHead.of(acc, size: 44, radius: 8),
               title: Text(acc?.username ?? s['notSelected']),
               subtitle: Text(
                   '${s['accountLabel']} • ${acc == null ? s['addAccount'] : (acc.isMsa ? s['msAccount'] : s['offlineAccount'])}'),
-              trailing: TextButton(
-                onPressed: () => openAccounts(context),
-                child: Text(s['selectAccount']),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    tooltip: s['changeSkin'],
+                    icon: const Icon(Icons.checkroom_outlined),
+                    onPressed: acc == null
+                        ? null
+                        : () => Navigator.of(context).push(MaterialPageRoute(
+                            builder: (_) => SkinPage(account: acc))),
+                  ),
+                  TextButton(
+                    onPressed: () => openAccounts(context),
+                    child: Text(s['selectAccount']),
+                  ),
+                ],
               ),
             ),
           ),

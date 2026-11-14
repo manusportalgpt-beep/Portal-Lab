@@ -188,6 +188,9 @@ class McAccount {
   int? tokenExpiresAt; // epoch ms
   String? skinUrl;
   String? xuid;
+  String? skinModel; // classic | slim — active Microsoft skin model
+  String? localSkinPath; // device-only skin override file (offline)
+  String? localSkinModel; // classic | slim — local override model
 
   McAccount({
     required this.uuid,
@@ -198,6 +201,9 @@ class McAccount {
     this.tokenExpiresAt,
     this.skinUrl,
     this.xuid,
+    this.skinModel,
+    this.localSkinPath,
+    this.localSkinModel,
   });
 
   bool get isMsa => type == 'msa';
@@ -211,6 +217,9 @@ class McAccount {
         'tokenExpiresAt': tokenExpiresAt,
         'skinUrl': skinUrl,
         'xuid': xuid,
+        'skinModel': skinModel,
+        'localSkinPath': localSkinPath,
+        'localSkinModel': localSkinModel,
       };
 
   factory McAccount.fromJson(Map<String, dynamic> j) => McAccount(
@@ -222,6 +231,9 @@ class McAccount {
         tokenExpiresAt: j['tokenExpiresAt'] as int?,
         skinUrl: j['skinUrl'] as String?,
         xuid: j['xuid'] as String?,
+        skinModel: j['skinModel'] as String?,
+        localSkinPath: j['localSkinPath'] as String?,
+        localSkinModel: j['localSkinModel'] as String?,
       );
 }
 
