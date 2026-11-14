@@ -39,6 +39,16 @@ jobs:
           open(p, 'w').write(s)
           EOF
 
+      - name: Disable release lint (AGP lintVital bug)
+        run: |
+          cd android/app
+          f=$(ls build.gradle* | head -1)
+          if [[ "$f" == *.kts ]]; then
+            printf '\nandroid {\n    lint {\n        checkReleaseBuilds = false\n    }\n}\n' >> "$f"
+          else
+            printf '\nandroid {\n    lint {\n        checkReleaseBuilds false\n    }\n}\n' >> "$f"
+          fi
+
       - name: Pub get
         run: flutter pub get
 
